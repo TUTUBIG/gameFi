@@ -27,7 +27,7 @@ contract hundredDollarGame {
 
     event amountDeposit(address indexed depositor, uint256 depositAmount);
     event amountBid(address indexed bidder, uint256 bidAmount);
-    event rewardClaim(address indexed owner,address indexed loser, uint256 winAmount, unit256 loseAmount);
+    event rewardClaim(address indexed owner,address indexed loser, uint256 winAmount, uint256 loseAmount);
 
     constructor(uint256 step) payable  {
         console.log("contract deployed by:", msg.sender);
