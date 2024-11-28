@@ -2,6 +2,7 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+import "remix_tests.sol";
 import "../contracts/hundred_dollar.sol";
 
 contract hundredDollarGameTest {
@@ -11,13 +12,32 @@ contract hundredDollarGameTest {
 
     /// #sender: account-0
     /// #value: 10
-    function beforeAll () public {
-        gameTest = new hundredDollarGame(5,60);
+    function beforeAll () public payable  {
+        gameTest = new hundredDollarGame{value: msg.value}(5,60);
     }
 
-    function checkContractDeployInitState() public view  {
-        console.log("checkContractDeployInitState");
-        (address winnerAddress, uint256 winAmount, uint256 holdeAmount, uint256 gameEndTime) = gameTest.getGameInfo();
-        console.log(winnerAddress,winAmount,holdeAmount,gameEndTime);
+    function checkContractDeployInitState() public  {
+        (, , uint256 holdeAmount, uint256 endTime ) = gameTest.getGameInfo();
+        Assert.equal(holdeAmount, 10, "hold amount is not expected");
+        Assert.equal(endTime, block.timestamp + 60, "game endtime is not expected");
+    }
+
+    /// #sender: account-1
+    /// #value: 5
+    function checkWinner() public payable  {
+        try gameTest.bid{value: msg.value}() {
+            (, uint256 winAmount, ,  ) = gameTest.getGameInfo();
+            Assert.equal(winAmount,msg.value,"winamount is not expected");
+        } catch Error(string memory reason) {
+            Assert.ok(false,reason);
+        }
+    }
+
+    function checkWinnerClaim() public {
+        try gameTest.claimReward() {
+            Assert.ok(true,"");
+        } catch Error(string memory reason) {
+            Assert.ok(false,reason);
+        }
     }
 }
